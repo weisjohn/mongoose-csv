@@ -84,5 +84,9 @@ function array_to_row(arr) {
 
 // return empty string if not truthy, escape quotes
 function prop_to_csv(prop) {
-    return '"' + (String(prop) || "").replace(/"/g, '""') + '"';
+
+    var val = String(prop);
+    if (val === 'undefined') val = '';
+
+    return '"' + val.toString().replace(/"/g, '""') + '"';
 }

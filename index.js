@@ -3,6 +3,7 @@ var _ = require('lodash');
 var mapstream = require('map-stream');
 var mongoose;
 
+// support npm-link include style
 try {
     mongoose = require('mongoose');
 } catch(e) {
@@ -10,41 +11,10 @@ try {
     mongoose = prequire('mongoose');
 }
 
-
 module.exports = function(schema, options) {
-    
-    var props = _(schema.tree).keys().without('_id', 'id')
-        
-        // opt-out private path names which start with `__`
-        .filter(function(key) { return !/^__/.test(key); })
-        
-        // transform the schema tree into an array for filtering
-        .map(function(key) { return { name : key, value : schema.tree[key] } })
-        
-        // remove paths that are annotated with csv: false
-        .filter(function(node) {
-            return typeof node.value.csv === 'undefined' || node.value.csv;
-        })
-        
-        // remove virtuals that are annotated with csv: false
-        .filter(function(node) {
-            var opts = node.value.options;
-            if (!opts) return true;
-            return typeof opts.csv === 'undefined' || opts.csv;
-        })
-        
-        // remove complex object types
-        .filter(function(node) {
-            var path = schema.paths[node.name];
-            if (!path) return true;
-            return (path.instance !== 'Array' && path.instance !== 'Object')
-        })
-        
-        // materialize , end chain
-        .pluck('name').value();
 
-    // _id at the beginning
-    props.unshift('_id');
+    // discover properties for use with headers / serializing
+    var props = find_props(schema);
 
     schema.statics.csv_headers = function() {
         return array_to_row(props);
@@ -56,7 +26,7 @@ module.exports = function(schema, options) {
 
         // map the props to values in this doc
         return array_to_row(props.map(function(prop) {
-            return json[prop];
+            return _.get(json, prop);
         }));
     }
 
@@ -76,6 +46,44 @@ module.exports = function(schema, options) {
     }
 
 };
+
+// walk the paths, rejecting those that opt-out
+function find_props(schema) {
+
+    var props = _(schema.paths).keys().without('_id', 'id')
+
+        // transform the schema tree into an array for filtering
+        .map(function(key) { return { name : key, value : _.get(schema.tree, key) } })
+
+        // remove paths that are annotated with csv: false
+        .filter(function(node) {
+            return typeof node.value.csv === 'undefined' || node.value.csv;
+        })
+
+        // remove virtuals that are annotated with csv: false
+        .filter(function(node) {
+            var opts = node.value.options;
+            if (!opts) return true;
+            return typeof opts.csv === 'undefined' || opts.csv;
+        })
+
+        // remove complex object types
+        .filter(function(node) {
+            var path = schema.paths[node.name];
+            if (!path) return true;
+            // filter out any of these types of properties
+            return [ 'Array', 'Object', 'Mixed' ].indexOf(path.instance) === -1;
+        })
+
+        // materialize , end chain
+        .pluck('name').value();
+
+    // _id at the beginning
+    props.unshift('_id');
+
+    return props;
+}
+
 
 // generate the line in the CSV file
 function array_to_row(arr) {

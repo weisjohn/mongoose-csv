@@ -25,6 +25,9 @@
     "map-stream": "0.0.6"
   },
   "devDependencies": {
-    "parent-require": "^1.0.0"
+    "async": "^1.4.2",
+    "mongoose": "^4.1.8",
+    "parent-require": "^1.0.0",
+    "through": "^2.3.8"
   }
 }

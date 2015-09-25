@@ -1,6 +1,6 @@
 {
   "name": "mongoose-csv",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "generate CSVs from a mongoose schema",
   "main": "index.js",
   "scripts": {

@@ -16,7 +16,7 @@ module.exports = function(schema, options) {
     // discover properties for use with headers / serializing
     var props = find_props(schema);
 
-    schema.statics.csv_headers = function() {
+    schema.statics.csv_header = function() {
         return array_to_row(props);
     }
 
@@ -35,10 +35,10 @@ module.exports = function(schema, options) {
     mongoose.Query.prototype.csv = function(stream) {
 
         // write header
-        stream.write(this.model.csv_headers());
+        stream.write(this.model.csv_header());
 
         // write data
-        this.stream()
+        return this.stream()
             .pipe(mapstream(function(data, cb) {
                 cb(null, data.toCSV());
             }))

@@ -1,4 +1,6 @@
 
+'use strict';
+
 var _ = require('lodash');
 var mapstream = require('map-stream');
 var mongoose;
@@ -18,7 +20,7 @@ module.exports = function(schema, options) {
 
     schema.statics.csv_header = function() {
         return array_to_row(props);
-    }
+    };
 
     schema.methods.toCSV = function() {
         var doc = this;
@@ -28,7 +30,7 @@ module.exports = function(schema, options) {
         return array_to_row(props.map(function(prop) {
             return _.get(json, prop);
         }));
-    }
+    };
 
     // register a global static function to stream a file repsonse
     if (mongoose.Query.prototype.csv) return;
@@ -43,7 +45,7 @@ module.exports = function(schema, options) {
                 cb(null, data.toCSV());
             }))
             .pipe(stream);
-    }
+    };
 
 };
 
@@ -53,7 +55,7 @@ function find_props(schema) {
     var props = _(schema.paths).keys().without('_id', 'id')
 
         // transform the schema tree into an array for filtering
-        .map(function(key) { return { name : key, value : _.get(schema.tree, key) } })
+        .map(function(key) { return { name : key, value : _.get(schema.tree, key) }; })
 
         // remove paths that are annotated with csv: false
         .filter(function(node) {

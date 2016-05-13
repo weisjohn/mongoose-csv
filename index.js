@@ -89,7 +89,7 @@ function find_props(schema) {
 
 // generate the line in the CSV file
 function array_to_row(arr) {
-    return arr.map(prop_to_csv).join(',') + '\n';
+    return arr.map(prop_to_csv).join(';') + '\n';
 }
 
 // return empty string if not truthy, escape quotes

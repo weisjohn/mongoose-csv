@@ -40,7 +40,15 @@ module.exports = function(schema, options) {
         stream.write(this.model.csv_header());
 
         // write data
-        return this.stream()
+        var cursor = null
+
+        if (this.cursor) {
+            cursor = this.cursor()
+        } else {
+            cursor = this.stream()
+        }
+
+        return cursor
             .pipe(mapstream(function(data, cb) {
                 cb(null, data.toCSV());
             }))

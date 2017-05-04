@@ -39,8 +39,11 @@ module.exports = function(schema, options) {
         // write header
         stream.write(this.model.csv_header());
 
+        //  handle Mongoose >= 4.5
+        var cursor = this.cursor ? this.cursor() : this.stream();
+
         // write data
-        return this.stream()
+        return cursor
             .pipe(mapstream(function(data, cb) {
                 cb(null, data.toCSV());
             }))

@@ -13,6 +13,9 @@ try {
     mongoose = prequire('mongoose');
 }
 
+// supress mongoose promise warning
+mongoose.Promise = global.Promise;
+
 module.exports = function(schema, options) {
 
     // discover properties for use with headers / serializing

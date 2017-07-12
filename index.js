@@ -4,6 +4,7 @@
 var _ = require('lodash');
 var mapstream = require('map-stream');
 var mongoose;
+var moment = require('moment');
 
 // support npm-link include style
 try {
@@ -27,6 +28,13 @@ module.exports = function(schema, options) {
 
     schema.methods.toCSV = function() {
         var doc = this;
+        
+        for (var property in doc._doc) {
+            if(doc._doc[property] instanceof Date){
+                doc._doc[property] = moment(doc._doc[property]).format('YYYY-MM-DD HH:mm:ss');
+            }
+        }
+        
         var json = doc.toJSON({ deleted : true, virtuals : true });
 
         // map the props to values in this doc

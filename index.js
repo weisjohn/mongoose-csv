@@ -84,7 +84,7 @@ function find_props(schema) {
         })
 
         // materialize , end chain
-        .pluck('name').value();
+        .map('name').value();
 
     // _id at the beginning
     props.unshift('_id');
